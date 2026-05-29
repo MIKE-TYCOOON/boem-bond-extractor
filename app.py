@@ -10,9 +10,9 @@ import pdfplumber
 import pytesseract
 from pdf2image import convert_from_path
 
-# Local macOS OCR setup. If paths differ, adjust here.
-pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/bin/tesseract"
-POPPLER_PATH = "/opt/homebrew/bin"
+# OCR setup. Works on Streamlit/Linux and local machines if tools are in PATH.
+pytesseract.pytesseract.tesseract_cmd = "tesseract"
+POPPLER_PATH = None
 
 def extract_all_text(file_path):
     file_path = os.path.abspath(file_path)
@@ -25,7 +25,7 @@ def extract_all_text(file_path):
     try:
 
         portfolio_check = subprocess.run(
-            ["/opt/homebrew/bin/pdfdetach", "-list", file_path],
+            ["pdfdetach", "-list", file_path],
             capture_output=True,
             text=True
         )
@@ -35,7 +35,7 @@ def extract_all_text(file_path):
             with tempfile.TemporaryDirectory() as tmpdir:
 
                 subprocess.run(
-                    ["/opt/homebrew/bin/pdfdetach", "-saveall", file_path],
+                    ["pdfdetach", "-saveall", file_path],
                     cwd=tmpdir,
                     check=False
                 )
@@ -55,7 +55,7 @@ def extract_all_text(file_path):
 
                         images = convert_from_path(
                             embedded_path,
-                            poppler_path="/opt/homebrew/bin"
+                            poppler_path=POPPLER_PATH
                         )
 
                         for image in images:
@@ -85,7 +85,7 @@ def extract_all_text(file_path):
 
         images = convert_from_path(
             file_path,
-            poppler_path="/opt/homebrew/bin"
+            poppler_path=POPPLER_PATH
         )
 
         for image in images:
